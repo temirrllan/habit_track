@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { pool } = require('./db/config');
 
 const app = express();
@@ -8,7 +9,9 @@ const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
@@ -22,7 +25,7 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// Базовый роут
+// API роуты
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
@@ -32,7 +35,6 @@ app.post('/api/auth/telegram', async (req, res) => {
   try {
     const { id, first_name, last_name, username, language_code } = req.body;
     
-    // Создаем или обновляем пользователя
     const query = `
       INSERT INTO users (telegram_id, first_name, last_name, username, language_code)
       VALUES ($1, $2, $3, $4, $5)
@@ -62,7 +64,16 @@ app.post('/api/auth/telegram', async (req, res) => {
   }
 });
 
+// В продакшене сервируем React build
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../frontend/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+  });
+}
+
 // Запуск сервера
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

@@ -19,6 +19,7 @@ function App() {
     WebApp.ready();
     
     // Получаем данные пользователя из Telegram
+    
     const tgUser = WebApp.initDataUnsafe.user;
     
     if (tgUser) {

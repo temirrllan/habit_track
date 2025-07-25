@@ -1,16 +1,19 @@
 {
   "name": "habit-tracker",
   "version": "1.0.0",
+  "main": "server.js",
   "scripts": {
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "cd frontend && npm start",
-    "dev:backend": "cd backend && npm run dev",
+    "start": "node server.js",
     "build": "cd frontend && npm install && npm run build",
-    "start": "cd backend && npm start",
-    "heroku-postbuild": "cd frontend && npm install && npm run build"
+    "install": "cd frontend && npm install",
+    "heroku-postbuild": "npm run build"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "pg": "^8.11.3"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

@@ -1,7 +1,12 @@
-require('dotenv').config();
+// Загружаем .env только если файл существует
+const fs = require('fs');
+const path = require('path');
+if (fs.existsSync(path.join(__dirname, '../.env'))) {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const { pool } = require('./db/config');
 
 const app = express();
@@ -10,7 +15,7 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+    ? false  // В production CORS не нужен
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -66,14 +71,16 @@ app.post('/api/auth/telegram', async (req, res) => {
 
 // В продакшене сервируем React build
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../frontend/build')));
+  const buildPath = path.join(__dirname, '../../frontend/build');
+  app.use(express.static(buildPath));
   
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+    res.sendFile(path.join(buildPath, 'index.html'));
   });
 }
 
 // Запуск сервера
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Environment:', process.env.NODE_ENV || 'development');
 });

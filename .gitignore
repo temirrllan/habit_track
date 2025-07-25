@@ -6,8 +6,12 @@ backend/node_modules/
 # Environment files
 .env
 .env.local
+.env.production
 frontend/.env
+frontend/.env.local
 backend/.env
+backend/.env.local
+
 
 # Build files
 frontend/build/
